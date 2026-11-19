@@ -6,6 +6,8 @@ Material para el **laboratorio** y las **Actividades 3 y 4**. Entrega de A3 y A4
 |---|---|
 | [`MANUAL_ALUMNO.md`](MANUAL_ALUMNO.md) | **Empieza aquí.** Primero el laboratorio paso a paso y después la A3 y la A4, explicadas desde cero |
 | `kit_lab_A3_A4_alumno.zip` | Kit **v2**: se copia encima del repositorio de tu equipo y **no reemplaza** ningún archivo tuyo |
+| `Presentacion_Laboratorio_A3_A4.pptx` | Presentación del laboratorio: conceptos (token, secreto, sesión, códigos HTTP), pasos y checkpoints |
+| `Presentacion_Actividades_A3_A4.pptx` | Presentación de la A3 y la A4: qué construyes, pasos, rúbricas y lista de revisión |
 
 ## En una línea
 
@@ -34,6 +36,7 @@ echo "bitacora/usuarios.db" >> .gitignore
 - Cada checkpoint tiene un resultado exacto: 3 passed, 4 passed y 12 passed.
 - Sin red (`LLM_PROVIDER=fake`) también funciona el agente.
 - La interfaz lee `API_URL` del `.env`.
+- El manual explica los conceptos clave: servicio, endpoint, token, Bearer, secreto, firma, sesión, hash, sal y códigos HTTP.
 
 ## Reglas
 

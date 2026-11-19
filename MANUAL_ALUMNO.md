@@ -39,6 +39,85 @@ Hay **tres** cosas distintas y se hacen **en este orden**:
 
 El laboratorio **solo** necesita la primera fila.
 
+## 0.1 · Conceptos clave (léelos antes de empezar)
+
+Vas a construir lo mismo que hay detrás de cualquier app con «Iniciar sesión». Estas son las piezas, con una comparación para cada una.
+
+### La app y la red
+
+| Concepto | Qué es | Comparación |
+|---|---|---|
+| **Servicio o API** | Un programa que espera peticiones por la red y responde con datos (JSON). Aquí es `api/producto.py`, hecho con FastAPI | La ventanilla de un banco: no ves lo de adentro, solo pides y te responden |
+| **Endpoint** | Una «ventanilla» concreta del servicio: un método más una ruta, como `POST /auth/login` o `POST /v1/preguntas` | Cada ventanilla atiende un solo trámite |
+| **Petición y respuesta** | Lo que mandas (método, ruta, cabeceras y cuerpo JSON) y lo que te regresan (código de estado y JSON) | El formato que llenas y el comprobante que te dan |
+| **Puerto** | El «número de puerta» por el que escucha un programa: el servicio usa el 8000 y la interfaz el 8501 | Dos negocios en el mismo edificio, cada uno con su número |
+| **Interfaz (Streamlit)** | La página web que usa una persona. **No** hace el trabajo: le pide todo al servicio | El cajero automático: botones para ti, pero el dinero lo mueve el banco |
+| **`/docs`** | Página que FastAPI genera sola, donde puedes probar cada endpoint sin escribir código | El catálogo de trámites con un botón de «probar» |
+
+### Identidad: quién eres y si puedes pasar
+
+| Concepto | Qué es | En este laboratorio |
+|---|---|---|
+| **Autenticación** | Comprobar **quién eres** | El login con `email` y `contrasena` |
+| **Autorización** | Decidir **qué puedes hacer** una vez que se sabe quién eres | Solo con token puedes preguntar o usar el agente, y solo tú confirmas tus acciones pendientes |
+| **Hash de contraseña** | Una «huella» de la contraseña que no se puede revertir. El servicio guarda la huella, **nunca** la contraseña | `hash_contrasena` usa PBKDF2-HMAC-SHA256 con miles de repeticiones |
+| **Sal** | Un valor aleatorio distinto para cada usuario que se mezcla con la contraseña antes de sacar la huella. Así dos personas con la misma contraseña tienen huellas distintas y no sirven las tablas precalculadas | `os.urandom(16)`; se guarda junto al hash, como `pbkdf2$<sal>$<hash>` |
+| **Comparación en tiempo constante** | Comparar dos valores tardando siempre lo mismo, para que un atacante no adivine letra por letra midiendo el tiempo | `hmac.compare_digest` en lugar de `==` |
+| **Token** | Un «pase» que el servicio te da al iniciar sesión. Lo mandas en cada petición para no enviar tu contraseña cada vez | La pulsera de un evento: te la ponen en la entrada y con ella entras a todas las zonas |
+| **Bearer** | La forma estándar de mandar el token: cabecera `Authorization: Bearer <token>`. «Bearer» significa «portador»: quien lo trae, pasa | En `/docs`, el candado **Authorize** agrega la palabra «Bearer» por ti |
+| **Firma del token** | Una marca que el servicio calcula con un **secreto** que solo él conoce. Si alguien cambia una letra del token, la firma ya no coincide y responde 401 | El sello de agua de un billete |
+| **Secreto (`TOKEN_SECRET`)** | Texto aleatorio largo (64 caracteres hexadecimales) con el que el servicio firma y verifica tokens. Si alguien lo conoce, puede fabricar tokens falsos | La llave del sello: por eso vive solo en `.env` |
+| **Expiración** | El token deja de servir después de un tiempo (aquí, 15 minutos). Limita el daño si alguien lo roba | La pulsera de un solo día |
+| **Sesión** | El periodo en que «sigues dentro» sin volver a escribir tu contraseña. En este proyecto la sesión **es** el token: el servicio no guarda una lista de conectados (no tiene estado); cada petición trae su token y se valida. Cuando expira, vuelves a iniciar sesión | En la interfaz, el token se guarda en `st.session_state`: la memoria de **esa** pestaña del navegador |
+| **Bloqueo por intentos** | Después de 5 contraseñas malas seguidas, el servicio deja de aceptar intentos un rato (429). Frena a quien prueba contraseñas al azar | El cajero que retiene la tarjeta |
+| **Mismo mensaje de error** | «Correo o contraseña incorrectos», exista o no el usuario. Si los mensajes fueran distintos, un atacante sabría qué correos están registrados | — |
+
+**Llave de API frente a token:** la `GEMINI_API_KEY` identifica **a ti** ante Google y te cobra la cuota; el token identifica **a un usuario** ante **tu** servicio. Ninguno de los dos se sube al repositorio.
+
+### Configuración y secretos
+
+| Concepto | Qué es |
+|---|---|
+| **Variable de entorno** | Un valor que el sistema le pasa al programa al arrancar (como `LLM_PROVIDER=gemini`). Permite cambiar la configuración sin tocar el código |
+| **`.env`** | Un archivo de texto con esas variables. Está en `.gitignore` para que **nunca** llegue a GitHub. `chmod 600` hace que solo tu usuario pueda leerlo |
+| **Proveedor `fake`** | Un «modelo» simulado que responde sin internet. Sirve para probar el flujo cuando no hay cuota o no hay red; sus respuestas no son representativas |
+
+### Errores: los códigos que vas a ver
+
+| Código | Significa | Ejemplo en el laboratorio |
+|---|---|---|
+| **200 / 201** | Todo bien / se creó algo | Login correcto / registro nuevo |
+| **401** | No sé quién eres o tu pase no sirve | Sin token, token alterado o expirado, contraseña incorrecta |
+| **404** | No existe (o no es tuyo) | Confirmar una acción de otro usuario o que ya se usó |
+| **409** | Conflicto con lo que ya existe | Registrar un correo repetido |
+| **422** | Lo que mandaste no tiene el formato correcto | Pregunta de 1 carácter, correo sin `@` |
+| **429** | Demasiadas solicitudes | Bloqueo tras 5 intentos, o más de 30 peticiones por minuto |
+| **501** | Esa parte todavía no está implementada | Una función `TODO(LAB)` de `api/auth.py` sin completar |
+| **503** | El modelo no está disponible | Se acabó la cuota de Gemini o no hay red |
+
+**`problem+json`** es un formato estándar para errores: siempre trae `type`, `title`, `status`, `detail` y `trace_id`. Así la interfaz y quien depura saben qué pasó sin adivinar.
+
+### El agente
+
+| Concepto | Qué es |
+|---|---|
+| **Agente** | El modelo resuelve una tarea en pasos: en cada paso **propone** en JSON usar una herramienta o responder |
+| **Herramienta** | Una función de Python que el agente puede pedir usar, con un esquema JSON que define sus argumentos válidos |
+| **Herramienta sensible** | La que tiene efecto en el mundo (crear un ticket, borrar, pagar). **Nunca** se ejecuta sin que una persona vea los datos exactos y la autorice |
+| **Confirmación en dos pasos** | 1) el código guarda la acción **pendiente** y te da un `id`; 2) tú la apruebas o rechazas con ese `id`, y entonces el **código** (no el modelo) la ejecuta |
+| **Validador** | Una regla escrita en código normal que revisa el plan antes de ofrecerlo (aquí: no hay ticket si la ventana de despliegue no lo permite) |
+| **Caso guía** | El ejemplo resuelto que usa todo el grupo (el Manual de Ingeniería de FinNorte). Tu variante es el problema de tu equipo |
+
+### Así viaja una petición
+
+```
+1. Registro   POST /auth/registro {email, contrasena}  → el servicio guarda hash + sal          → 201
+2. Login      POST /auth/login    {email, contrasena}  → verifica, firma un token con el secreto → 200 {token}
+3. Uso        POST /v1/preguntas  + Authorization: Bearer <token>
+              → el servicio revisa la firma y la expiración → si todo bien, responde       → 200
+              → si el token es falso o venció                                              → 401
+```
+
 ---
 
 ## 1 · Preparación (30 min)
@@ -178,6 +257,8 @@ pytest tests/test_lab_producto.py -k "salud or sin_token or invalida"
 Debe decir **3 passed**. Toma una captura del 401 con sus campos `type`, `title`, `status`, `detail` y `trace_id`.
 
 ### Paso 2 · La autenticación, escrita con IA y revisada por ti (30 min)
+
+Antes de empezar repasa en la sección 0.1 qué son el hash, la sal, el token, el secreto y la expiración.
 
 `api/auth.py` trae 5 funciones marcadas `TODO(LAB)`, cada una con una pista: `hash_contrasena`, `verificar_contrasena`, `emitir_token`, `validar_token` y `login`. **Esta parte es tu A3 empezada en clase**, así que guarda todo para tu PDF.
 
