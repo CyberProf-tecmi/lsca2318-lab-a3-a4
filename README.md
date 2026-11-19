@@ -1,57 +1,42 @@
 # LSCA2318 · Laboratorio A3 + A4 · Producto real con Gemini
 
-Kit del laboratorio del **18 de noviembre de 2026**. Es la base de la **Actividad 3** y la **Actividad 4**, que se entregan el **lunes 23 de noviembre a las 23:59**.
+Material para el **laboratorio** y las **Actividades 3 y 4**. Entrega de A3 y A4: **lunes 23 de noviembre, 23:59**.
 
 | Archivo | Qué es |
 |---|---|
-| `kit_lab_A3_A4_alumno.zip` | Archivos que se copian en la raíz del **repositorio de tu equipo** |
-| [`MANUAL_ALUMNO.md`](MANUAL_ALUMNO.md) | Manual paso a paso: ruta A (AWS Learner Lab) y ruta B (tu computadora) |
+| [`MANUAL_ALUMNO.md`](MANUAL_ALUMNO.md) | **Empieza aquí.** Primero el laboratorio paso a paso y después la A3 y la A4, explicadas desde cero |
+| `kit_lab_A3_A4_alumno.zip` | Kit **v2**: se copia encima del repositorio de tu equipo y **no reemplaza** ningún archivo tuyo |
 
-Todo el material del laboratorio se publica en este repositorio.
+## En una línea
 
-## Cómo obtener el kit
+1. **Laboratorio:** con el caso guía, que ya viene resuelto, levantas un servicio con login y token, un agente que pide permiso y una interfaz. Solo escribes las 5 funciones de `api/auth.py`.
+2. **A3:** autenticación más el endpoint de **tu** variante.
+3. **A4:** herramienta, agente, validador e interfaz de **tu** variante.
 
-### En tu instancia de AWS (ruta A), dentro del repositorio de tu equipo
+**No necesitas tener terminadas la A1, el Avance 1 ni la A4** para hacer el laboratorio.
+
+## Copiar el kit (dentro del repositorio de tu equipo)
 
 ```
 wget -O kit.zip https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4/raw/main/kit_lab_A3_A4_alumno.zip
-unzip -o kit.zip && rm kit.zip
+unzip -n kit.zip
 echo "bitacora/usuarios.db" >> .gitignore
 ```
 
-**Si tu `src/finnorte/herramientas.py` ya tiene `ejecutar_agente` funcionando**, no lo reemplaces. Usa este comando en lugar del `unzip` anterior:
+`unzip -n` nunca sobrescribe. En Windows: abre el zip en esta página, da clic en **Download raw file**, descomprímelo y copia su contenido eligiendo **Omitir** en los archivos repetidos.
 
-```
-unzip -o kit.zip -x src/finnorte/herramientas.py && rm kit.zip
-```
+**¿Copiaste el kit anterior (v1)?** Lee la sección 7 del manual.
 
-### En tu computadora (ruta B)
+## Novedades de la v2 (18 de noviembre)
 
-1. Abre `kit_lab_A3_A4_alumno.zip` en esta página y da clic en **Download raw file**.
-2. Descomprímelo en la raíz del repositorio de tu equipo y reemplaza los archivos que te pregunte.
-
-### Después, en ambos casos
-
-1. Haz commit y push para que tu equipo tenga el kit:
-   ```
-   git add . && git commit -m "lab: kit A3+A4" && git push
-   ```
-2. Revisa que `git status` **no** muestre `.env` ni `bitacora/usuarios.db`.
-
-## Qué trae el kit
-
-| Archivo | Qué hace | Actividad |
-|---|---|---|
-| `api/auth.py` | Registro, login y token: **5 funciones `TODO(LAB)`** por completar | A3 |
-| `api/main.py` | Servicio con token, errores `problem+json`, límite de solicitudes, `/v1/variante` y `/v1/agente` | A3 · A4 |
-| `src/finnorte/agente_servicio.py` | Agente con confirmación humana en dos pasos y validador | A4 |
-| `src/finnorte/herramientas.py` | `ejecutar_agente` por completar (si aún no lo tienes) | A4 |
-| `app/cliente_api.py` | Interfaz Streamlit que consume el servicio | A4 |
-| `tests/test_lab_producto.py` | Pruebas del laboratorio: lo pendiente aparece como SKIP | A3 · A4 |
-| `.env.example` | Variables necesarias, **sin llaves** | — |
+- El laboratorio ya no depende de A1, Avance 1 ni A4: el caso guía viene resuelto en `src/finnorte/caso_guia/`.
+- El servicio ahora es `api/producto.py` (`uvicorn api.producto:app`) y **no reemplaza** tu `api/main.py`.
+- Cada checkpoint tiene un resultado exacto: 3 passed, 4 passed y 12 passed.
+- Sin red (`LLM_PROVIDER=fake`) también funciona el agente.
+- La interfaz lee `API_URL` del `.env`.
 
 ## Reglas
 
-- Tu llave de Gemini y el `TOKEN_SECRET` viven **solo** en `.env`, nunca en el repositorio. Una llave en el repositorio cuesta **−15** y se revoca.
+- Tu llave de Gemini y el `TOKEN_SECRET` viven **solo** en `.env`. Una llave en el repositorio cuesta **−15** y se revoca.
 - En AWS, los puertos 8000 y 8501 se abren **solo a My IP**.
 - Todo uso de IA va en `ai_log.md`.

@@ -1,67 +1,71 @@
-# Manual del alumno · Laboratorio A3 + A4 · Producto real con Gemini
+# Manual del alumno · Laboratorio A3 + A4 · Producto real con Gemini (v2)
 
-**LSCA2318 · 18 de noviembre de 2026 · Sirve para hacerlo en clase o en casa**
+**LSCA2318 · Sirve para hacerlo en clase o en casa · Entrega de A3 y A4: lunes 23 de noviembre, 23:59**
 
-**Entrega de A3 y A4: lunes 23 de noviembre, 23:59.** Ambas son la base del Avance 2.
+Material (kit y este manual): https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4
 
-**Material del laboratorio (kit y este manual):** https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4
+## 0 · Primero entiende qué es cada cosa
 
-## Qué vas a construir
+Hay **tres** cosas distintas y se hacen **en este orden**:
 
-Una aplicación de verdad, con piezas que se hablan por la red:
+| Orden | Qué es | Sobre qué trabajas | ¿Se califica? |
+|---|---|---|---|
+| 1 | **Laboratorio** (partes 1 a 3 de este manual) | El **caso guía**: el Manual de Ingeniería de FinNorte y un agente que crea tickets de despliegue | Solo la autenticación, que es tu A3 empezada en clase |
+| 2 | **Actividad 3** (parte 4) | **Tu variante**: tu servicio con autenticación y tu endpoint | Sí, 6 % |
+| 3 | **Actividad 4** (parte 5) | **Tu variante**: tu herramienta, tu agente, tu validador y tu interfaz | Sí, 6 % |
 
-```
-Navegador ─► Streamlit :8501 ─(token)─► FastAPI :8000 ─► Gemini
-                                         ├─ /v1/preguntas   caso guía
-                                         ├─ /v1/variante    tu motor    ← A3
-                                         └─ /v1/agente ─► /confirmar   ← A4
-```
+**No necesitas haber terminado nada antes.** El laboratorio funciona aunque tu equipo no tenga lista la A1, el Avance 1 ni la A4: el kit trae el caso guía **ya resuelto**, en una carpeta aparte (`src/finnorte/caso_guia/`), sin tocar tus archivos.
 
-| Pieza | Archivo | Actividad |
+**Lo que se te entrega resuelto y lo que haces tú:**
+
+| Pieza | En el laboratorio | En la A3 o la A4 |
 |---|---|---|
-| Interfaz | `app/cliente_api.py` | A4 |
-| Servicio con token | `api/main.py` | A3 |
-| Autenticación | `api/auth.py` (5 funciones por completar) | A3 |
-| Agente con confirmación | `src/finnorte/agente_servicio.py` | A4 |
-| Validador de reglas | `validar_plan` | A4 |
+| `api/auth.py` (registro, login y token) | **Lo completas tú** (5 funciones) | A3 la califica |
+| `api/producto.py` (el servicio) | Se entrega | A3: le agregas **tu** endpoint `POST /v1/<tu-variante>` |
+| `caso_guia/` (buscador, asistente, herramientas, agente de referencia) | Se entrega, solo se usa | No se califica |
+| Ejecutor del agente | Usas el **de referencia** | A4: implementas **el tuyo** en `herramientas.py` |
+| Validador | Usas `validar_plan` del caso guía | A4: escribes **el de tu variante** |
+| Interfaz `app/cliente_api.py` | Se entrega para el caso guía | A4: la **adaptas** a tu variante |
 
-**La idea central:** el modelo **propone**; el código **decide**; la persona **autoriza** lo que tiene efecto.
+**Nombres que vas a ver en los mensajes:**
 
-## Elige tu ruta
+| Mensaje | Qué significa | Archivo |
+|---|---|---|
+| `Pendiente: Laboratorio · api/auth.py · <función>` | Te falta esa función del laboratorio | `api/auth.py` |
+| `Pendiente: A1` | Buscador semántico (Actividad 1) | `src/finnorte/retrieval.py` |
+| `Pendiente: A2` | Pipeline de tu variante (Actividad 2) | `src/finnorte/pipeline.py` |
+| `Pendiente: AV1` o `Avance 1` | Motor de tu variante (Avance 1) | `asistente.py`, `variante.py`, `controles.py` |
+| `Pendiente: A4` | Tu ejecutor del agente (Actividad 4) | `src/finnorte/herramientas.py` |
+
+El laboratorio **solo** necesita la primera fila.
+
+---
+
+## 1 · Preparación (30 min)
+
+### 1.1 · Llave de Gemini
+
+1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google. Si tu cuenta institucional no te deja, usa una cuenta personal de Gmail.
+2. Acepta los términos y da clic en **Create API key**. Copia la llave: empieza con `AIza`.
+3. La llave es personal. **Nunca** la pegues en un chat de IA ni la subas al repositorio. Si se filtra, revócala en esa misma página y crea otra.
+
+### 1.2 · Elige dónde trabajar
 
 | | Ruta A · AWS Learner Lab | Ruta B · Tu computadora |
 |---|---|---|
-| Cuándo | **En clase** (recomendada) o en casa | En casa, si ya tienes el andamio funcionando |
-| Ventaja | Todos con el mismo Linux; sin problemas de Windows | No dependes de la sesión del lab |
-| Necesitas | Acceso a AWS Academy y cuenta de GitHub | Python 3.10 o más, VS Code y Git |
+| Cuándo | En clase (recomendada) o en casa | En casa |
+| Necesitas | AWS Academy y cuenta de GitHub | Python 3.10 o más, VS Code y Git |
 
-**Para las dos rutas:**
-1. **Llave de Gemini:** entra a https://aistudio.google.com/apikey con tu cuenta de Google, acepta los términos y da clic en **Create API key**. Copia la llave (empieza con `AIza`).
-   - Si tu cuenta institucional no te deja entrar a AI Studio, usa una cuenta personal de Gmail.
-   - La llave es personal. **Nunca** la pegues en un chat de IA ni la subas al repositorio.
-   - Si se filtra, revócala en esa misma página y crea otra.
-2. **Kit en el repositorio del equipo.** Basta con que **una persona del equipo** lo haga y los demás actualicen su copia. Descarga `kit_lab_A3_A4_alumno.zip` de https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4 y descomprímelo en la raíz del repositorio:
-   - reemplaza `api/main.py`, `src/finnorte/herramientas.py` y `tests/test_s4_api.py`;
-   - los demás archivos son nuevos.
-
-   **Si tu `herramientas.py` ya tiene `ejecutar_agente` funcionando, no lo reemplaces.**
-3. Agrega a `.gitignore` la línea `bitacora/usuarios.db`: ahí se guardan los hashes de las contraseñas de prueba.
-4. Commit y push: `git add . && git commit -m "lab: kit A3+A4" && git push`.
-   - Si nadie del equipo tiene el repositorio en su PC: en GitHub, **Add file › Upload files**, arrastra el **contenido** del kit (las carpetas `api`, `app`, `src`, `tests` y los archivos sueltos) y da clic en **Commit changes**.
-   - Los archivos que empiezan con punto, como `.env.example`, pueden no subirse al arrastrar. No pasa nada: tu repositorio ya trae uno y en el paso A4 solo le agregas dos líneas.
-
-## Ruta A · AWS Learner Lab
-
-### A1 · Lanzar tu instancia (10 min)
+### 1.3 · Ruta A: lanza tu instancia (10 min)
 
 1. AWS Academy › tu curso › **Modules › Learner Lab › Start Lab**. Espera el punto verde y da clic en **AWS**.
-2. Arriba a la derecha, la región debe ser **N. Virginia (us-east-1)**.
-3. **EC2 › Launch instance**:
+2. La región, arriba a la derecha, debe ser **N. Virginia (us-east-1)**.
+3. **EC2 › Launch instance:**
 
 | Campo | Valor |
 |---|---|
 | Name | `finnorte-<tu-usuario>` |
-| AMI | **Ubuntu Server 24.04 LTS** (no Amazon Linux: trae Python 3.9 y el proyecto pide 3.10 o más) |
+| AMI | **Ubuntu Server 24.04 LTS** (no Amazon Linux: trae Python 3.9) |
 | Instance type | **t3.small** |
 | Key pair | `vockey` |
 | Storage | **16 GiB** |
@@ -74,250 +78,234 @@ Navegador ─► Streamlit :8501 ─(token)─► FastAPI :8000 ─► Gemini
 | Custom TCP | 8000 | **My IP** |
 | Custom TCP | 8501 | **My IP** |
 
-   **Nunca abras 8000 ni 8501 a «Anywhere»:** tu servicio quedaría expuesto a todo internet.
+   - Si más tarde la página deja de abrir (cambiaste de red o de salón), entra a **EC2 › Security groups › tu grupo › Edit inbound rules** y vuelve a elegir **My IP** en las reglas 8000 y 8501.
+   - **Nunca** los abras a «Anywhere»: cualquiera podría registrarse en tu app y gastar tu cuota de Gemini.
 
-5. **Launch instance.** Anota la **Public IPv4 address**. En este manual la llamamos `<IP>`.
-
-### A2 · Entrar e instalar (5 min)
-
-1. Selecciona tu instancia › **Connect › EC2 Instance Connect › Connect**. Se abre una terminal en el navegador.
-2. Para pegar en ella usa **Ctrl+Shift+V** o el clic derecho.
+5. **Launch instance** y anota la **Public IPv4 address**. En este manual la llamamos `<IP>`.
+6. Selecciona la instancia › **Connect › EC2 Instance Connect › Connect**. Para pegar en la terminal usa **Ctrl+Shift+V**.
 
 ```
-sudo apt update && sudo apt install -y python3-venv python3-pip unzip gh
-```
-
-### A3 · Traer el repositorio de tu equipo (5 min)
-
-```
+sudo apt update && sudo apt install -y python3-venv python3-pip unzip git gh
 gh auth login
 ```
 
-Responde: **GitHub.com › HTTPS › Yes** (autenticar Git) **› Login with a web browser**.
-- Te muestra un código de 8 caracteres.
-- En **tu PC** abre https://github.com/login/device, escribe el código y autoriza.
-- **No** generes ni pegues tokens ni contraseñas en la terminal.
+En `gh auth login` responde **GitHub.com › HTTPS › Yes › Login with a web browser**, abre https://github.com/login/device en **tu PC**, escribe el código y autoriza. No pegues tokens ni contraseñas en la terminal.
 
 ```
 gh repo clone <organización-o-usuario>/<repositorio-del-equipo>
 cd <repositorio-del-equipo>
 git config --global user.name "Tu Nombre"
 git config --global user.email "tu-correo@ejemplo.com"
-ls api        # debe aparecer auth.py
 ```
 
-Si `api/auth.py` no aparece, tu equipo aún no sube el kit. Descárgalo directo en la instancia y súbelo:
+### 1.4 · Copia el kit (rutas A y B)
+
+**Dentro de la carpeta del repositorio de tu equipo** (donde están `pyproject.toml` y `src/`):
 
 ```
 wget -O kit.zip https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4/raw/main/kit_lab_A3_A4_alumno.zip
-unzip -o kit.zip && rm kit.zip
+unzip -n kit.zip
 echo "bitacora/usuarios.db" >> .gitignore
-git add . && git commit -m "lab: kit A3+A4" && git push
 ```
 
-Si ya tienes `ejecutar_agente` funcionando, usa `unzip -o kit.zip -x src/finnorte/herramientas.py`.
+- `unzip -n` **nunca sobrescribe**: el kit solo agrega archivos nuevos. Deja `kit.zip` por ahora; lo borras al terminar la sección 1.
+- **En Windows (ruta B):** en la página del repositorio abre `kit_lab_A3_A4_alumno.zip`, da clic en **Download raw file**, descomprímelo y copia su **contenido** a la raíz del repositorio de tu equipo. Si Windows pregunta por un archivo repetido, elige **Omitir**.
+- **Si ya habías copiado el kit anterior (v1)**, lee la parte 7 antes de seguir.
 
-### A4 · Entorno y llave (5 min)
+### 1.5 · Instala y configura
 
-```
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && pip install -e .
-cp -n .env.example .env
-python3 -c "import secrets; print(secrets.token_hex(32))"     # copia el resultado
-nano .env
-```
+| | Ruta A (Ubuntu) | Ruta B (Windows PowerShell) |
+|---|---|---|
+| Entorno | `python3 -m venv .venv && source .venv/bin/activate` | `python -m venv .venv` y `.venv\Scripts\activate` |
+| Instalar | `pip install -r requirements.txt && pip install -e .` | igual |
+| `.env` | `cp -n .env.example .env && cat .env.lab.example >> .env` | `copy .env.example .env` y pega al final el contenido de `.env.lab.example` |
+| Secreto | `python3 -c "import secrets; print(secrets.token_hex(32))"` | `python -c "import secrets; print(secrets.token_hex(32))"` |
 
-`pip install` tarda de 3 a 4 minutos. En `nano` deja así las líneas:
+Abre `.env` (`nano .env` en la ruta A; VS Code en la ruta B) y deja estas líneas:
 
 ```
 LLM_PROVIDER=gemini
-LLM_MODEL=gemini-flash-lite-latest
 GEMINI_API_KEY=<tu llave>
 EMB_PROVIDER=gemini
-TOKEN_SECRET=<el resultado que copiaste>
+LLM_MODEL=gemini-flash-lite-latest
+TOKEN_SECRET=<el secreto que generaste>
 API_URL=http://127.0.0.1:8000
 ```
 
-- Si alguna línea no existe en tu `.env`, agrégala al final.
-- Guarda con **Ctrl+O, Enter** y sal con **Ctrl+X**. Después protege el archivo:
+En `nano` guarda con **Ctrl+O, Enter** y sal con **Ctrl+X**. En la ruta A protege el archivo con `chmod 600 .env`.
 
-```
-chmod 600 .env
-python -m finnorte info        # debe decir gemini
-```
+**Checkpoint 0:** corre `python -m finnorte info`. Debe mostrar `gemini`. Después borra el zip con `rm kit.zip`.
 
-**`API_URL` se queda en 127.0.0.1** porque la interfaz y el servicio corren en la misma instancia. Solo tu navegador usa `<IP>`.
+| Si sale… | Causa | Solución |
+|---|---|---|
+| `No module named finnorte` | No estás en la raíz del repositorio o faltó `pip install -e .` | `cd` a la carpeta que tiene `pyproject.toml` y repite la instalación |
+| `fake` en lugar de `gemini` | El `.env` no tiene `LLM_PROVIDER=gemini` o la llave está vacía | Revisa el `.env` |
+| `requires-python >=3.10` | Instancia con Amazon Linux | Lanza Ubuntu 24.04 |
 
-**Checkpoint 0 (ruta A):** `python -m finnorte info` muestra `gemini`.
+**Sin cuota o sin red:** con `LLM_PROVIDER=fake` y `EMB_PROVIDER=hash`, todo el laboratorio funciona con respuestas simuladas, incluido el agente.
 
-### A5 · Dos terminales
+---
 
-Abre una segunda terminal con **Connect** otra vez. En **cada** terminal nueva escribe primero:
+## 2 · Laboratorio: el producto del caso guía (90 min)
+
+Necesitas **dos terminales**. En la ruta A abre la segunda con **Connect** otra vez. En cada terminal nueva escribe primero:
 
 ```
 cd <repositorio-del-equipo> && source .venv/bin/activate
 ```
 
-| | Ruta A (AWS) |
-|---|---|
-| Terminal 1 · servicio | `uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload` |
-| Terminal 2 · interfaz | `streamlit run app/cliente_api.py --server.address 0.0.0.0 --server.port 8501 --server.headless true` |
-| Documentación del servicio | `http://<IP>:8000/docs` |
-| Interfaz | `http://<IP>:8501` |
-
-Escribe `http://`, **no** `https://`. Si cierras la pestaña de una terminal, se detiene lo que corría en ella.
-
-Ahora sigue con los **pasos 1 a 6**.
-
-## Ruta B · Tu computadora
-
-En la carpeta del repositorio de tu equipo (con el kit ya copiado), en la terminal de VS Code:
-
-| | Windows (PowerShell) | Mac o Linux |
+| | Ruta A (AWS) | Ruta B (tu PC) |
 |---|---|---|
-| Entorno | `python -m venv .venv` y `.venv\Scripts\activate` | `python3 -m venv .venv` y `source .venv/bin/activate` |
-| Instalar | `pip install -r requirements.txt` y `pip install -e .` | igual |
-| `.env` | `copy .env.example .env` (si no existe) | `cp -n .env.example .env` |
-| Secreto | `python -c "import secrets; print(secrets.token_hex(32))"` | igual, con `python3` |
+| Terminal 1 · servicio | `uvicorn api.producto:app --host 0.0.0.0 --port 8000 --reload` | `uvicorn api.producto:app --reload` |
+| Terminal 2 · interfaz | `streamlit run app/cliente_api.py --server.address 0.0.0.0 --server.port 8501 --server.headless true` | `streamlit run app/cliente_api.py` |
+| Documentación (`/docs`) | `http://<IP>:8000/docs` | `http://127.0.0.1:8000/docs` |
+| Interfaz | `http://<IP>:8501` | `http://localhost:8501` |
 
-- Llena `.env` igual que en la ruta A4 y guárdalo con Ctrl+S.
-- **Checkpoint 0 (ruta B):** `python -m finnorte info` muestra `gemini`.
+Escribe `http://`, no `https://`. Para correr las pruebas usa una **tercera** terminal, o detén el servicio con Ctrl+C.
 
-| | Ruta B (tu PC) |
-|---|---|
-| Terminal 1 · servicio | `uvicorn api.main:app --reload` |
-| Terminal 2 · interfaz | `streamlit run app/cliente_api.py` |
-| Documentación del servicio | `http://127.0.0.1:8000/docs` |
-| Interfaz | `http://localhost:8501` |
+### Paso 1 · El servicio responde (10 min)
 
-**Si Windows se traba:**
-- **«La ejecución de scripts está deshabilitada»:** corre `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, responde `S` y vuelve a activar el entorno.
-- **`python` abre la Microsoft Store:** usa `py` en lugar de `python`, o reinstala Python desde python.org marcando «Add to PATH».
-- **El firewall pregunta al arrancar `uvicorn` o `streamlit`:** da clic en **Permitir**.
-- **Trabajas dentro de OneDrive:** mueve el proyecto a `C:\proyectos`.
-
----
-
-**Sobre la cuota gratuita:** cada paso del agente es una solicitud a Gemini.
-- Usa *flash-lite* y prueba con pocas entradas.
-- Si ves 429 o 503 por cuota, sigue trabajando con `LLM_PROVIDER=fake` y `EMB_PROVIDER=hash` en `.env`, y reinicia el servicio.
-
-## Paso 1 · El servicio responde (10 min)
-
-1. Arranca el servicio en la **terminal 1** y abre la documentación del servicio (`/docs`) en tu navegador. FastAPI la genera sola.
+1. Arranca el servicio en la terminal 1 y abre `/docs`.
 2. `GET /salud` › **Try it out › Execute**: muestra el modelo configurado.
 3. `POST /v1/preguntas` sin iniciar sesión: responde **401** en formato `problem+json`.
 
-**Checkpoint 1:** captura del 401 con sus campos `type`, `title`, `status`, `detail` y `trace_id`.
+**Checkpoint 1:**
 
-## Paso 2 · La autenticación, con el asistente de IA bajo disciplina (25 min)
+```
+pytest tests/test_lab_producto.py -k "salud or sin_token or invalida"
+```
 
-`api/auth.py` trae 5 funciones marcadas `TODO(LAB)`. Cada una tiene una pista. Las completas **con un asistente de IA**, pero revisando lo que propone.
+Debe decir **3 passed**. Toma una captura del 401 con sus campos `type`, `title`, `status`, `detail` y `trace_id`.
 
-**Prompt de diseño** (guárdalo para tu PDF de la A3):
+### Paso 2 · La autenticación, escrita con IA y revisada por ti (30 min)
+
+`api/auth.py` trae 5 funciones marcadas `TODO(LAB)`, cada una con una pista: `hash_contrasena`, `verificar_contrasena`, `emitir_token`, `validar_token` y `login`. **Esta parte es tu A3 empezada en clase**, así que guarda todo para tu PDF.
+
+1. Pega este **prompt de diseño** en un asistente de IA:
 
 > Actúa como ingeniero de seguridad de una fintech. Diseña en Python, sin librerías externas, las funciones `hash_contrasena`, `verificar_contrasena`, `emitir_token` (expira en 15 minutos) y `validar_token`, y un `login` con bloqueo tras 5 intentos fallidos. Requisitos: PBKDF2-HMAC-SHA256 con sal; comparación en tiempo constante; el mismo mensaje para usuario inexistente y contraseña incorrecta; el secreto del token se lee de una variable de entorno; la bitácora de intentos nunca guarda la contraseña. Explica cada decisión y señala qué riesgos quedan.
 
-**Evalúa la propuesta antes de copiarla.** Encuentra al menos 3 fallas y relaciona cada una con su regla del Manual (SEC, ing-02, ing-07). Las fallas típicas son:
-- MD5 o SHA-256 sin sal;
-- comparar con `==` en lugar de `hmac.compare_digest`;
-- mensajes distintos para «usuario no existe» y «contraseña incorrecta»;
-- el secreto del token escrito en el código;
-- tokens sin expiración.
+2. **Antes de copiar nada**, encuentra al menos 3 fallas en la propuesta y relaciona cada una con su regla del Manual (SEC, ing-02, ing-07). Las fallas típicas son:
+   - MD5 o SHA-256 sin sal;
+   - comparar con `==` en lugar de `hmac.compare_digest`;
+   - mensajes distintos para «usuario no existe» y «contraseña incorrecta»;
+   - el secreto del token escrito en el código;
+   - tokens sin expiración.
+3. Completa las 5 funciones respetando las firmas que ya trae el archivo. En la ruta A edita con `nano api/auth.py`, o edita en tu PC, haz push y en la instancia corre `git pull`.
+4. Anota en `ai_log.md` qué **aceptaste**, qué **modificaste** y qué **rechazaste**.
 
-**Para editar en la ruta A:** `nano api/auth.py`. Si prefieres editar en VS Code, hazlo en tu PC, haz push y en la instancia corre `git pull`.
-
-Anota en `ai_log.md` qué **aceptaste**, qué **modificaste** y qué **rechazaste**.
-
-**Checkpoint 2:** corre esto en una terminal libre. Las 4 pruebas deben quedar en verde.
+**Checkpoint 2:**
 
 ```
 pytest tests/test_lab_producto.py -k "mensaje or alterado or bloqueo or texto_plano"
 ```
 
-## Paso 3 · El token en acción (10 min)
+Debe decir **4 passed**. Si dice «4 skipped», alguna función sigue pendiente: corre la prueba con `-rs` y el motivo dice cuál.
 
-En `/docs`:
-1. `POST /auth/registro` con tu correo y una contraseña de 8 o más caracteres.
-2. `POST /auth/login` y copia el valor de `token`, sin comillas.
+### Paso 3 · El token en acción (15 min)
+
+Reinicia el servicio (Ctrl+C y arráncalo otra vez) y en `/docs`:
+
+1. `POST /auth/registro` con `{"email": "tu-correo@ejemplo.com", "contrasena": "una-de-8-o-mas"}`. Responde **201**.
+2. `POST /auth/login` con los mismos campos. Copia el valor de `token`, sin comillas.
 3. Da clic en el candado **Authorize** (arriba a la derecha) y pega **solo el token**, sin escribir «Bearer».
-4. Repite `POST /v1/preguntas`: ahora responde Gemini, con fuentes.
+4. `POST /v1/preguntas` con `{"pregunta": "¿Cada cuánto se rotan los secretos?"}`. Ahora responde el modelo, con `fuentes`.
 
 | Prueba | Resultado esperado |
 |---|---|
 | Login con contraseña mala 6 veces | La sexta da **429** (bloqueo) |
 | Token alterado (cambia la última letra en Authorize) | **401** |
 | Pregunta de 1 carácter | **422** en `problem+json` |
-| Usuario inexistente vs. contraseña mala | El mismo 401 con el mismo mensaje |
+| Usuario inexistente y contraseña mala | El mismo 401 con el mismo mensaje |
 
-**Checkpoint 3:** captura de cada caso. Van en la sección de pruebas de tu A3.
+**Checkpoint 3:**
 
-## Paso 4 · El agente detrás de la API (20 min)
+```
+pytest tests/test_lab_producto.py
+```
 
-En una app web, el agente no puede «esperar» a que alguien dé clic. Por eso la confirmación va en dos pasos:
+Debe decir **12 passed**. Toma una captura de cada fila de la tabla: van en la sección de pruebas de tu A3.
+
+### Paso 4 · El agente detrás de la API (15 min)
+
+En una app web el agente no puede «esperar» a que alguien dé clic. Por eso la confirmación va en **dos pasos**:
 
 | Paso | Endpoint | Qué pasa |
 |---|---|---|
-| 1 | `POST /v1/agente {"tarea": ...}` | El agente usa las herramientas de consulta. Si propone una **sensible**, no la ejecuta: el código la guarda como **pendiente** con los datos exactos y devuelve un `id` |
+| 1 | `POST /v1/agente {"tarea": ...}` | El agente usa las herramientas de consulta. Si propone una **sensible** (`crear_ticket_cambio`), no la ejecuta: el código la guarda como **pendiente** con los datos exactos y devuelve un `id` |
 | 2 | `POST /v1/agente/confirmar/{id} {"aprobar": true}` | El **código** ejecuta exactamente lo guardado; el modelo ya no interviene |
 | 2 | `POST /v1/agente/confirmar/{id} {"aprobar": false}` | No se ejecuta nada; la bitácora registra `rechazada` |
 
-- **Validador:** antes de ofrecer la acción corre `validar_plan`. En el caso guía, un ticket solo se ofrece si `revisar_ventana_despliegue` dijo `permitido: true` para la misma fecha y el mismo riesgo (regla ing-03).
-- **Si tu `ejecutar_agente` aún no está implementado,** impleméntalo ahora; guíate por su docstring y por `tests/test_a4_agente.py`. Debe:
-  - validar los argumentos contra el esquema;
-  - no ejecutar lo sensible si `confirmar` devuelve `False` o `None`;
-  - detectar repeticiones (misma herramienta con los mismos argumentos);
-  - tener tope de pasos.
+Antes de ofrecer la acción corre el **validador** `validar_plan`: un ticket solo se ofrece si `revisar_ventana_despliegue` dijo `permitido: true` para la misma fecha y riesgo (regla ing-03).
 
-**Checkpoint 4:** todo debe quedar en verde o SKIP, sin errores.
+En `/docs`, con tu token:
+1. `POST /v1/agente` con `{"tarea": "Quiero desplegar un cambio de riesgo alto en pagos-api el 2026-11-24. Si se puede, crea el ticket."}`. Revisa `pasos`, `validador` y `pendientes`.
+2. Copia el `id` del pendiente y llama a `POST /v1/agente/confirmar/{id}` con `{"aprobar": true}`. Responde `"estado": "ejecutada"`.
+3. Mira la bitácora con `tail -3 bitacora/trazas.jsonl`.
 
-```
-pytest tests/test_a4_agente.py tests/test_lab_producto.py
-```
+Aquí usas el **ejecutor de referencia** (`src/finnorte/caso_guia/agente_ref.py`). Léelo para entender el flujo. En la A4 escribes **el tuyo**.
 
-Puedes ver la bitácora con `tail -3 bitacora/trazas.jsonl`.
+### Paso 5 · La interfaz consume el servicio (20 min)
 
-## Paso 5 · La interfaz consume el servicio (15 min)
-
-1. Arranca la interfaz en la **terminal 2**. El servicio sigue corriendo en la terminal 1.
-2. Abre la interfaz en tu navegador. Regístrate y entra desde la barra lateral.
+1. Arranca la interfaz en la terminal 2; el servicio sigue en la terminal 1.
+2. Regístrate y entra desde la barra lateral.
 3. **Preguntar:** observa el estado de espera, las fuentes y la latencia.
-4. **Agente:** haz estas tres pruebas.
+4. **Agente:**
 
 | Tarea | Lo que debe pasar |
 |---|---|
 | «Quiero desplegar un cambio de riesgo alto en pagos-api el **2026-11-24**. Si se puede, crea el ticket.» | Aparece la acción pendiente con sus datos exactos. **Autoriza:** se crea el ticket |
 | La misma tarea | Esta vez **rechaza**: no se crea nada y la bitácora registra `rechazada` |
-| La misma tarea con fecha **2026-11-27** | Es viernes: la herramienta dice que no y no aparece nada para autorizar |
+| La misma tarea con fecha **2026-11-27** | Es viernes: la herramienta dice que no y no aparece nada que autorizar |
 
-5. Detén el servicio (Ctrl+C en la terminal 1) y presiona **Preguntar**. La interfaz debe mostrar un error amable, no tronar.
+5. Detén el servicio (Ctrl+C en la terminal 1) y pulsa **Preguntar**. La interfaz debe mostrar un error amable, no tronar.
 
-**Checkpoint 5:** captura de la acción pendiente, del rechazo y del error con el servicio apagado. Son tres de las evidencias de tu A4.
+**Checkpoint 5:** captura de la acción pendiente, del rechazo y del error con el servicio apagado.
 
-## Paso 6 · Tu variante (el resto de la sesión y la tarea)
+**Con esto terminaste el laboratorio.** Guarda tu trabajo:
 
-### Actividad 3 · Servicio con autenticación
+```
+git status            # que NO aparezcan .env ni bitacora/usuarios.db
+git add . && git commit -m "lab A3+A4: auth y caso guía" && git push
+```
 
-1. **Endpoint `POST /v1/variante`** (puedes renombrarlo `/v1/<tu-variante>`), que llama a `variante.sistema()`.
-   - Ya está protegido por el token, con `problem+json` y límite de solicitudes.
-   - Pruébalo con 2 entradas reales de tu variante.
-2. **Análisis del `login()` oficial:**
-   - tabla con problema, explicación técnica, impacto real y tipo de mejora;
-   - di si la respuesta del asistente fue suficiente, ambigua o incompleta.
-3. **Las 3 versiones:** `a3/login_seguridad.py`, `a3/login_eficiencia.py` y `a3/login_mantenible.py`. Para cada una explica qué cambió y por qué, e incluye la matriz problema → versión → evidencia.
-4. **Pruebas `tests/test_a3_*.py`:**
-   - las 3 oficiales: login exitoso, contraseña incorrecta y usuario inexistente;
-   - al menos 3 propias: token expirado, token alterado, bloqueo o entrada 422.
-5. **Comparación y reflexión:**
-   - tabla de 5 criterios para las 4 versiones;
-   - recomendaciones de la IA que aceptaste, modificaste y descartaste.
-6. Etiqueta `a3-<usuario>` y PDF de 5 a 7 páginas. Las instrucciones completas y la rúbrica están en el Word de la A3.
+---
 
-### Actividad 4 · Interfaz y herramienta con confirmación
+## 3 · Lo que hiciste en el laboratorio y lo que sigue
 
-1. **La herramienta de tu variante,** con esquema estricto, tipo, control y límite.
-   - En `api/main.py`, cambia `_herramientas()` para que devuelva tus herramientas.
-   - Puedes conservar también las del caso guía.
+| Hiciste en el laboratorio | Lo usas en |
+|---|---|
+| Las 5 funciones de `api/auth.py` | A3 · Componente de autenticación |
+| Capturas de 401, 429, 422 y token alterado | A3 · Pruebas |
+| El prompt de diseño y las fallas que encontraste | A3 · Evaluación crítica de la propuesta |
+| Entendiste el agente en dos pasos y el validador | A4 · tu ejecutor y tu validador |
+| Viste la interfaz del caso guía | A4 · adaptarla a tu variante |
+
+---
+
+## 4 · Actividad 3 · Servicio de tu variante con autenticación
+
+**Qué entregas:** la etiqueta `a3-<usuario>` en el repositorio y un PDF de 5 a 7 páginas. Instrucciones y rúbrica completas: el Word de la A3.
+
+1. **Componente de autenticación:** tu `api/auth.py` del laboratorio, con los 6 requisitos mínimos (hash con sal, expiración de 15 minutos o menos, mismo mensaje, comparación en tiempo constante, bloqueo y bitácora sin contraseña).
+2. **Tu endpoint** `POST /v1/<tu-variante>` en `api/producto.py`:
+   - con **su propio modelo de entrada** (por ejemplo, `{"requisito": "..."}` en v1-qa o `{"logs": "..."}` en v5-triage) y validación;
+   - protegido con `Depends(usuario_actual)`, con errores `problem+json` y el límite de solicitudes;
+   - que llame al `variante.sistema()` de tu equipo (Avance 1). El `/v1/variante` del kit con `"motor": "demo"` **no cuenta** como tu endpoint;
+   - probado con 2 entradas reales de tu variante.
+3. **Análisis del `login()` oficial:** tabla con problema, explicación técnica, impacto real y tipo de mejora; di si la respuesta del asistente fue suficiente, ambigua o incompleta.
+4. **Las 3 versiones:** `a3/login_seguridad.py`, `a3/login_eficiencia.py` y `a3/login_mantenible.py`, con qué cambió, por qué y la matriz problema → versión → evidencia.
+5. **Pruebas** en `tests/test_a3_*.py`: las 3 oficiales (login exitoso, contraseña incorrecta, usuario inexistente) y al menos 3 propias (token expirado, token alterado, bloqueo o entrada 422). Critica las pruebas que te dé el asistente.
+6. **Comparación y reflexión:** tabla de 5 criterios para las 4 versiones y recomendaciones de la IA aceptadas, modificadas y descartadas.
+7. `ai_log.md` al día, `git tag a3-<usuario> && git push --tags`.
+
+---
+
+## 5 · Actividad 4 · Interfaz y herramienta de tu variante, con confirmación humana
+
+**Qué entregas:** la etiqueta `a4-<usuario>`, un PDF de 5 a 7 páginas y el enlace a la demo de 2 minutos. Instrucciones y rúbrica completas: el Word de la A4.
+
+1. **Tu herramienta** con esquema JSON estricto, tipo, control y límite:
 
 | Variante | Herramienta mínima | Control |
 |---|---|---|
@@ -327,47 +315,63 @@ Puedes ver la bitácora con `tail -3 bitacora/trazas.jsonl`.
 | v4-documentador | `validar_openapi(especificacion)` | Validador local, sin red |
 | v5-triage | `buscar_logs(desde, hasta, patron)` | Rango máximo de 2 h; PII enmascarada |
 
-2. **Tu validador de lógica tradicional:** reemplaza `validar_plan` con la regla de tu variante (está en la tabla de la A4). Debe correr en cada respuesta y verse en la interfaz.
-3. **La interfaz sobre TU servicio,** en los modos «Mi variante» y «Agente», con estados de carga y de error, y con fuentes.
-4. **Primera ejecución con 5 entradas:**
-   - matriz de trazabilidad;
-   - errores clasificados;
-   - 2 mejoras;
-   - las mismas 5 entradas otra vez.
-5. **Prueba de seguridad:** una falla de herramienta (por ejemplo, un archivo que no existe) y una **confirmación rechazada**.
-6. Etiqueta `a4-<usuario>` y PDF de 5 a 7 páginas. Las instrucciones completas y la rúbrica están en el Word de la A4.
+2. **Tu ejecutor:** implementa `ejecutar_agente` en `src/finnorte/herramientas.py`. Guíate por su docstring y por `tests/test_a4_agente.py`. Debe:
+   - validar los argumentos contra el esquema;
+   - no ejecutar lo sensible si `confirmar` devuelve `False` **o `None`** (`None` = pendiente: la decisión llega en otra solicitud);
+   - detectar repeticiones y tener tope de pasos.
 
-## Al terminar cada sesión
+   El de referencia del laboratorio te sirve para entender el flujo; copiarlo no cuenta como tu implementación.
+3. **Conéctalo** en `api/producto.py`:
+   - en `_herramientas()` agrega tu herramienta;
+   - en `agente()` usa `agente_servicio.iniciar(..., ejecutor=herramientas.ejecutar_agente, validador=tu_validador)`.
+4. **Tu validador** de lógica tradicional, con la regla de tu variante (tabla del Word de la A4). Debe correr en cada respuesta y verse en la interfaz.
+5. **Adapta la interfaz** `app/cliente_api.py` a tu variante: el modo «Mi variante» llama a **tu** endpoint de la A3, el modo «Agente» usa tu herramienta, con estados de carga y error, fuentes y el resultado del validador.
+6. **Primera ejecución con 5 entradas**, matriz de trazabilidad, errores clasificados, 2 mejoras y las mismas 5 entradas otra vez.
+7. **Prueba de seguridad:** una falla de herramienta (por ejemplo, un archivo que no existe) y una **confirmación rechazada**.
+8. `ai_log.md` al día, `git tag a4-<usuario> && git push --tags`.
 
-1. **Guarda tu trabajo en GitHub.** Antes del commit revisa que `git status` no muestre `.env` ni `bitacora/usuarios.db`.
-   ```
-   git status
-   git add . && git commit -m "lab A3+A4: <qué hiciste>" && git push
-   ```
-2. **Ruta A:**
-   - EC2 › tu instancia › **Instance state › Stop instance**, y luego **End Lab**.
-   - **No la termines (Terminate)** hasta después del 23 de noviembre.
-3. **Para volver (ruta A):**
+---
+
+## 6 · Al terminar cada sesión (ruta A)
+
+1. `git status`, y después `git add . && git commit -m "..." && git push`.
+2. EC2 › tu instancia › **Instance state › Stop instance**, y luego **End Lab**. **No uses Terminate** antes del 23 de noviembre.
+3. **Para volver:**
    1. Start Lab › EC2 › **Start instance**.
    2. La `<IP>` **cambia**: copia la nueva.
    3. Si estás en otra red, actualiza las reglas 8000 y 8501 a **My IP**.
-   4. Entra con Connect, haz `cd` a tu repositorio, `source .venv/bin/activate` y `git pull`.
+   4. Entra con Connect, `cd` a tu repositorio, `source .venv/bin/activate` y `git pull`.
 
-## Errores comunes
+## 7 · Si ya habías copiado el kit v1
+
+El kit v1 **reemplazaba** `api/main.py`, `src/finnorte/herramientas.py` y `tests/test_s4_api.py`, y usaba `uvicorn api.main:app`.
+
+1. Copia el kit v2 como en la sección 1.4. **No pierdes** tu `api/auth.py`: `cp -n` no lo toca.
+2. Reemplaza estos 3 archivos, que sí cambiaron:
+
+```
+unzip -o kit.zip src/finnorte/agente_servicio.py app/cliente_api.py tests/test_lab_producto.py
+```
+
+En Windows copia esos 3 archivos del zip eligiendo **Reemplazar**.
+
+3. Si el v1 borró tu `herramientas.py` o tu `main.py`, recupéralos del commit anterior: `git log --oneline -- src/finnorte/herramientas.py` y luego `git checkout <commit> -- src/finnorte/herramientas.py`.
+4. Desde ahora el servicio se arranca con `uvicorn api.producto:app`.
+
+## 8 · Errores comunes
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| `501 Pieza pendiente` | Falta completar una función (`TODO(LAB)`, A1, Avance 1 o A4) | El `detail` dice cuál |
+| `501 Pieza pendiente` con `api/auth.py` | Falta esa función del laboratorio | El `detail` dice cuál |
 | `RuntimeError: Define TOKEN_SECRET` | Falta el secreto en `.env` | Genera uno con `secrets.token_hex(32)` |
 | `503 Proveedor del modelo no disponible` | Cuota agotada, llave mala o sin red | Revisa la llave, espera un minuto o usa `fake` |
 | 401 aunque pusiste el token | Escribiste «Bearer» en Authorize, o pasaron 15 minutos | Pega solo el token; vuelve a iniciar sesión |
-| La interfaz dice «sin conexión» | El servicio no está corriendo | Arráncalo en la terminal 1 |
-| El navegador no abre `<IP>:8000` o `<IP>:8501` (A) | Usaste `https`, falta la regla «My IP» o cambió la IP | `http://`, revisa el security group y la IP |
-| `requires-python >=3.10` (A) | Lanzaste Amazon Linux | Lanza Ubuntu 24.04 |
-| `ensurepip is not available` (A) | Falta `python3-venv` | `sudo apt install -y python3-venv` |
-| `pip` se queda sin memoria (A) | Instancia micro | Usa t3.small |
-| Streamlit pide un correo (A) | Falta `--server.headless true` | Agrégalo al comando |
-| El agente da vueltas sin terminar | El modelo no devolvió el JSON esperado | Revisa la traza; el tope de pasos lo detiene |
+| La interfaz dice «sin conexión» | El servicio no está corriendo o `API_URL` apunta a otro puerto | Arráncalo en la terminal 1; revisa `API_URL` en `.env` |
+| El navegador no abre `<IP>:8000` o `<IP>:8501` | Usaste `https`, cambió tu IP o cambió la de la instancia | `http://`; actualiza **My IP** en el security group |
+| `ensurepip is not available` | Falta `python3-venv` | `sudo apt install -y python3-venv` |
+| `pip` se queda sin memoria | Instancia micro | Usa t3.small |
+| Streamlit pide un correo | Falta `--server.headless true` | Agrégalo al comando |
+| `No module named finnorte` | No estás en la raíz del repositorio o faltó `pip install -e .` | Ver Checkpoint 0 |
 
 ## Qué no se negocia
 
