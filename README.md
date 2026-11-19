@@ -5,8 +5,9 @@ Kit del laboratorio del **18 de noviembre de 2026**. Es la base de la **Activida
 | Archivo | Qué es |
 |---|---|
 | `kit_lab_A3_A4_alumno.zip` | Archivos que se copian en la raíz del **repositorio de tu equipo** |
+| [`MANUAL_ALUMNO.md`](MANUAL_ALUMNO.md) | Manual paso a paso: ruta A (AWS Learner Lab) y ruta B (tu computadora) |
 
-El **Manual del alumno** (ruta A en AWS Learner Lab y ruta B en tu computadora) está en Canvas.
+Todo el material del laboratorio se publica en este repositorio.
 
 ## Cómo obtener el kit
 
