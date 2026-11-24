@@ -1,6 +1,6 @@
 # Manual del alumno · Laboratorio A3 + A4 · Producto real con Gemini (v2)
 
-**LSCA2318 · Sirve para hacerlo en clase o en casa · Entrega de A3 y A4: lunes 23 de noviembre, 23:59**
+**LSCA2318 · Sirve para hacerlo en clase o en casa · Entrega del laboratorio: martes 24 de noviembre, 23:59 · Entrega de A3 y A4: jueves 26 de noviembre, 23:59**
 
 Material (kit y este manual): https://github.com/CyberProf-tecmi/lsca2318-lab-a3-a4
 
@@ -354,6 +354,26 @@ git add . && git commit -m "lab A3+A4: auth y caso guía" && git push
 
 ## 3 · Lo que hiciste en el laboratorio y lo que sigue
 
+### Entrega del laboratorio · martes 24 de noviembre, 23:59 (individual)
+
+1. **Etiqueta de Git** en el repositorio de tu equipo, con tu `api/auth.py` completo:
+   ```
+   pytest tests/test_lab_producto.py      # debe decir 12 passed
+   git add . && git commit -m "lab: auth completo"
+   git tag lab-<usuario> && git push && git push --tags
+   ```
+2. **Un PDF corto** con estas capturas:
+
+| Checkpoint | Captura |
+|---|---|
+| 1 | El 401 en `problem+json` con `type`, `title`, `status`, `detail` y `trace_id` |
+| 2 | `pytest … -k "mensaje or alterado or bloqueo or texto_plano"` con **4 passed** |
+| 3 | `pytest tests/test_lab_producto.py` con **12 passed** y las 4 filas de la tabla del paso 3 (429, token alterado, 422, mismo mensaje) |
+| Paso 4 | `/v1/agente` con el pendiente y la confirmación con `"estado": "ejecutada"` |
+| 5 | En la interfaz: la acción pendiente, el rechazo y el error con el servicio apagado |
+
+Las mismas capturas las reutilizas en la A3 y la A4 (jueves 26), así que no las repites.
+
 | Hiciste en el laboratorio | Lo usas en |
 |---|---|
 | Las 5 funciones de `api/auth.py` | A3 · Componente de autenticación |
@@ -416,7 +436,7 @@ git add . && git commit -m "lab A3+A4: auth y caso guía" && git push
 ## 6 · Al terminar cada sesión (ruta A)
 
 1. `git status`, y después `git add . && git commit -m "..." && git push`.
-2. EC2 › tu instancia › **Instance state › Stop instance**, y luego **End Lab**. **No uses Terminate** antes del 23 de noviembre.
+2. EC2 › tu instancia › **Instance state › Stop instance**, y luego **End Lab**. **No uses Terminate** antes del 26 de noviembre.
 3. **Para volver:**
    1. Start Lab › EC2 › **Start instance**.
    2. La `<IP>` **cambia**: copia la nueva.

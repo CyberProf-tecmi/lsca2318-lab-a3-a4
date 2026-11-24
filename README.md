@@ -1,6 +1,6 @@
 # LSCA2318 · Laboratorio A3 + A4 · Producto real con Gemini
 
-Material para el **laboratorio** y las **Actividades 3 y 4**. Entrega de A3 y A4: **lunes 23 de noviembre, 23:59**.
+Material para el **laboratorio** y las **Actividades 3 y 4**. **Entrega del laboratorio: martes 24 de noviembre, 23:59** (etiqueta `lab-<usuario>` + PDF con capturas; ver sección 3 del manual). **Entrega de A3 y A4: jueves 26 de noviembre, 23:59.**
 
 | Archivo | Qué es |
 |---|---|
